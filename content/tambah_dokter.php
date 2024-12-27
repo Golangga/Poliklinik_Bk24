@@ -80,32 +80,19 @@ $result_poli = mysqli_query($mysqli, $query_poli);
                     </div>
 
                     <div>
-                        <label class="block text-gray-700 font-bold mb-2" for="password">
-                            Password <span class="text-red-500">*</span>
+                        <label class="block text-gray-700 font-bold mb-2" for="no_hp">
+                            Nomer Handphone <span class="text-red-500">*</span>
                         </label>
                         <input
-                            type="password"
-                            id="password"
-                            name="password"
+                            type="text"
+                            id="no_hp"
+                            name="no_hp"
                             required
                             class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Minimal 8 karakter"
-                            minlength="8">
+                            placeholder="Masukkan nomer handphone">
                     </div>
 
-                    <div>
-                        <label class="block text-gray-700 font-bold mb-2" for="konfirmasi_password">
-                            Konfirmasi Password <span class="text-red-500">*</span>
-                        </label>
-                        <input
-                            type="password"
-                            id="konfirmasi_password"
-                            name="konfirmasi_password"
-                            required
-                            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Ulangi password"
-                            minlength="8">
-                    </div>
+
                 </div>
 
                 <!-- Tombol Aksi -->
@@ -125,23 +112,7 @@ $result_poli = mysqli_query($mysqli, $query_poli);
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.querySelector('form');
-            const password = document.getElementById('password');
-            const konfirmasiPassword = document.getElementById('konfirmasi_password');
 
-            // Validasi konfirmasi password  
-            form.addEventListener('submit', function(e) {
-                if (password.value !== konfirmasiPassword.value) {
-                    e.preventDefault();
-                    alert('Konfirmasi password tidak cocok!');
-                    konfirmasiPassword.focus();
-                    return;
-                }
-            });
-        });
-    </script>
 </body>
 
 </html>

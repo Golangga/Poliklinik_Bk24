@@ -22,14 +22,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $alamat = $_POST['alamat'];
     $no_hp = $_POST['no_hp'];
 
-    $password = $_POST['password'];
-    $konfirmasi_password = $_POST['konfirmasi_password'];
-
-    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-
     if ($aksi == 'tambah') {
-        $stmt = $mysqli->prepare("INSERT INTO dokter (nama, id_poli, alamat, password) VALUES (?, ?, ?, ?)");
-        $stmt->bind_param("ssss", $nama_dokter, $id_poli, $alamat, $hashed_password);
+        $stmt = $mysqli->prepare("INSERT INTO dokter (nama, id_poli, alamat, no_hp) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("ssss", $nama_dokter, $id_poli, $alamat, $no_hp);
 
         if ($stmt->execute()) {
             $stmt->close();

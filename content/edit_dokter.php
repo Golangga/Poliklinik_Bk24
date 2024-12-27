@@ -10,7 +10,6 @@ if (!isset($_GET['id'])) {
 // Ambil ID dari URL dan bersihkan dari kemungkinan SQL injection  
 $id = $mysqli->real_escape_string(intval($_GET['id']));
 
-
 // Ambil data dokter dari database  
 $query = "SELECT * FROM dokter WHERE id = '$id'";
 $result = mysqli_query($mysqli, $query);
@@ -30,6 +29,18 @@ while ($row = mysqli_fetch_assoc($result_poli)) {
     $poliklinik[] = $row;
 }
 
+// Fungsi untuk memformat nomor telepon  
+function formatPhoneNumber($number)
+{
+    $number = preg_replace('/\D/', '', $number); // Menghapus karakter non-digit  
+
+    if (strlen($number) == 11 && $number[0] == '0') {
+        return '+62 ' . substr($number, 1); // Menghapus angka 0 di depan  
+    } elseif (strlen($number) == 12 && substr($number, 0, 2) == '62') {
+        return '+' . $number; // Sudah dalam format internasional  
+    }
+    return $number; // Kembalikan nomor asli jika tidak sesuai  
+}
 ?>
 
 <!DOCTYPE html>
@@ -54,10 +65,10 @@ while ($row = mysqli_fetch_assoc($result_poli)) {
                 <input type="hidden" name="id" value="<?= $dokter['id'] ?>">
 
                 <div class="mb-4">
-                    <label class="block text-gray-700 font-bold mb-2" for="nama_dokter">
+                    <label class="block text-gray-700 font-bold mb-2" for="nama">
                         Nama Dokter <span class="text-red-500">*</span>
                     </label>
-                    <input type="text" id="nama_dokter" name="nama_dokter" value="<?= htmlspecialchars($dokter['nama']) ?>" required
+                    <input type="text" id="nama" name="nama" value="<?= htmlspecialchars($dokter['nama']) ?>" required
                         class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Masukkan nama Dokter">
                 </div>
@@ -85,10 +96,10 @@ while ($row = mysqli_fetch_assoc($result_poli)) {
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-gray-700 font-bold mb-2" for="no_telp">
+                    <label class="block text-gray-700 font-bold mb-2" for="no_hp">
                         No. Telp <span class="text-red-500">*</span>
                     </label>
-                    <input type="text" id="no_telp" name="no_telp" value="<?= htmlspecialchars($dokter['no_hp']) ?>" required
+                    <input type="text" id="no_hp" name="no_hp" value="<?= htmlspecialchars(formatPhoneNumber($dokter['no_hp'])) ?>" required
                         class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Masukkan No Telp">
                 </div>

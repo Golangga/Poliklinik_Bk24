@@ -2,24 +2,25 @@
 require_once './config/koneksi.php';
 session_start();
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $nama = mysqli_real_escape_string($mysqli, $_POST['nama']);
-    $password = mysqli_real_escape_string($mysqli, $_POST['password']);
+// if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+//     $nama = mysqli_real_escape_string($mysqli, $_POST['nama']);
+//     $alamat = mysqli_real_escape_string($mysqli, $_POST['alamat']);
 
-    // Query untuk mengambil data pasien berdasarkan nama  
-    $query = "SELECT * FROM pasien WHERE nama = '$nama'";
-    $result = mysqli_query($mysqli, $query);
-    $pasien = mysqli_fetch_assoc($result);
+//     // Query untuk mengambil data pasien berdasarkan nama  
+//     $query = "SELECT * FROM pasien WHERE nama = '$nama'";
+//     $result = mysqli_query($mysqli, $query);
+//     $pasien = mysqli_fetch_assoc($result);
 
-    // Verifikasi pasien  
-    if ($pasien && password_verify($password, $pasien['password'])) {
-        $_SESSION['pasien_id'] = $pasien['id']; // Simpan ID pasien di session  
-        header("Location: dashboard_pasien.php"); // Arahkan ke dashboard pasien  
-        exit;
-    } else {
-        echo "<script>alert('Nama atau password salah.'); history.back();</script>";
-    }
-}
+//     // Verifikasi pasien menggunakan alamat  
+//     if ($pasien && $alamat === $pasien['alamat']) {
+//         $_SESSION['pasien_id'] = $pasien['id']; // Simpan ID pasien di session  
+//         header("Location: dashboard_pasien.php"); // Arahkan ke dashboard pasien  
+//         exit;
+//     }
+//     // } else {
+//     //     echo "<script>alert('Nama atau alamat salah.'); history.back();</script>";
+//     // }
+// }
 ?>
 
 <!DOCTYPE html>
@@ -43,15 +44,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <input type="text" id="nama" name="nama" required class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:ring-blue-500" placeholder="Masukkan nama">
             </div>
             <div class="mb-4">
-                <label for="password" class="block text-gray-700">Password</label>
-                <input type="password" id="password" name="password" required class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:ring-blue-500" placeholder="Masukkan password">
+                <label for="alamat" class="block text-gray-700">Alamat</label>
+                <input type="text" id="alamat" name="alamat" required class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:ring-blue-500" placeholder="Masukkan alamat">
             </div>
             <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition duration-200">Login</button>
         </form>
 
         <div class="mt-4 text-center">
             <a href="index.php" class="text-blue-500 hover:underline">Kembali ke Beranda</a>
-            <p href="index.php" class="">belum punya akun? <a href="./daftar_pasien.php" class="hover:underline text-blue-500">Daftar</a></p>
+            <p class="">belum punya akun? <a href="./daftar_pasien.php" class="hover:underline text-blue-500">Daftar</a></p>
         </div>
     </div>
 

@@ -9,8 +9,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $alamat = mysqli_real_escape_string($mysqli, $_POST['alamat']);
     $no_ktp = mysqli_real_escape_string($mysqli, $_POST['no_ktp']);
     $no_hp = mysqli_real_escape_string($mysqli, $_POST['no_hp']);
-    $password = mysqli_real_escape_string($mysqli, $_POST['password']);
-    $hashed_password = password_hash($password, PASSWORD_DEFAULT); // Hash password  
 
     // Cek apakah pasien sudah terdaftar berdasarkan no KTP  
     $query = "SELECT * FROM pasien WHERE no_ktp = '$no_ktp'";
@@ -30,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $no_rm = $year_month . '-' . str_pad($urutan, 3, '0', STR_PAD_LEFT);
 
         // Query untuk menambah pasien  
-        $query_insert = "INSERT INTO pasien (nama, password, alamat, no_ktp, no_hp, no_rm) VALUES ('$nama', '$hashed_password', '$alamat', '$no_ktp', '$no_hp', '$no_rm')";
+        $query_insert = "INSERT INTO pasien (nama, alamat, no_ktp, no_hp, no_rm) VALUES ('$nama', '$alamat', '$no_ktp', '$no_hp', '$no_rm')";
 
         if (mysqli_query($mysqli, $query_insert)) {
             // Set pesan sukses  
@@ -55,9 +53,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             const nama = document.getElementById('nama').value;
             const noKtp = document.getElementById('no_ktp').value;
             const noHp = document.getElementById('no_hp').value;
-            const password = document.getElementById('password').value;
 
-            if (!nama || !noKtp || !noHp || !password) {
+            if (!nama || !noKtp || !noHp) {
                 alert('Semua field harus diisi!');
                 return false;
             }
@@ -87,10 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <label class="block text-gray-700" for="no_hp">No HP</label>
                     <input type="text" id="no_hp" name="no_hp" required class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-                <div>
-                    <label class="block text-gray-700" for="password">Password</label>
-                    <input type="password" id="password" name="password" required class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
+                <!-- Hapus bagian input password -->
                 <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200">Daftar</button>
             </form>
 

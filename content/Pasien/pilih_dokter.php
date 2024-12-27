@@ -1,26 +1,29 @@
 <?php
 session_start();
-require '../../config/koneksi.php';
+require_once '../../config/koneksi.php';
 
-// Cek apakah user sudah login sebagai pasien  
+// Cek apakah pasien sudah terdaftar  
 if (!isset($_SESSION['pasien_id'])) {
-    header("location: ../../login_pasien.php");
-    exit();
+    header("Location: daftar_pasien.php");
+    exit;
 }
 
-// Ambil id_poli dari form  
-$id_poli = $_POST['id_poli'] ?? null;
-if (!$id_poli) {
-    header("location: daftar_poli.php");
-    exit();
+// Ambil ID poli dari parameter GET  
+$poli_id = $_GET['poli_id'] ?? null;
+
+if (!$poli_id) {
+    header("Location: pilih_poli.php");
+    exit;
 }
 
-// Ambil data dokter berdasarkan poli  
-$query = "SELECT * FROM dokter WHERE id_poli = ?";
-$stmt = mysqli_prepare($mysqli, $query);
-mysqli_stmt_bind_param($stmt, 'i', $id_poli);
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
+// Ambil daftar dokter berdasarkan poli  
+$query = "  
+    SELECT d.*, p.nama_poli   
+    FROM dokter d  
+    JOIN poli p ON d.id_poli = p.id  
+    WHERE d.id_poli = '$poli_id'  
+";
+$result = mysqli_query($mysqli, $query);
 ?>
 
 <!DOCTYPE html>
@@ -30,30 +33,28 @@ $result = mysqli_stmt_get_result($stmt);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pilih Dokter</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
 </head>
 
-<body class="bg-gray-100">
+<body class="bg-gray-50">
     <div class="container mx-auto px-4 py-8">
-        <h1 class="text-2xl font-bold mb-4 text-center">Pilih Dokter</h1>
-        <form action="konfirmasi_pendaftaran.php" method="POST">
-            <input type="hidden" name="id_poli" value="<?= htmlspecialchars($id_poli) ?>">
-            <div class="space-y-4">
-                <?php while ($dokter = mysqli_fetch_assoc($result)): ?>
-                    <div class="bg-white p-4 rounded-lg shadow">
-                        <label>
-                            <input type="radio" name="id_jadwal" value="<?= $dokter['id'] ?>" required>
-                            <?= htmlspecialchars($dokter['nama']) ?>
-                        </label>
-                    </div>
-                <?php endwhile; ?>
+        <div class="max-w-md mx-auto bg-white shadow-md rounded-lg overflow-hidden">
+            <div class="bg-green-500 text-white p-4">
+                <h1 class="text-2xl font-bold">Pilih Dokter</h1>
             </div>
-            <div class="mt-6 text-center">
-                <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition duration-300">
-                    Konfirmasi Pendaftaran
-                </button>
+            <div class="p-6">
+                <form action="konfirmasi_pendaftaran.php" method="GET">
+                    <input type="hidden" name="poli_id" value="<?= htmlspecialchars($poli_id) ?>">
+                    <?php while ($dokter = mysqli_fetch_assoc($result)): ?>
+                        <div class="mb-4">
+                            <input type="radio" name="dokter_id" value="<?= $dokter['id'] ?>" required>
+                            <label class="text-gray-700"><?= htmlspecialchars($dokter['nama']) ?></label>
+                        </div>
+                    <?php endwhile; ?>
+                    <button type="submit" class="bg-green-500 text-white py-2 px-4 rounded">Konfirmasi</button>
+                </form>
             </div>
-        </form>
+        </div>
     </div>
 </body>
 

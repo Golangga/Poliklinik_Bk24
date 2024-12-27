@@ -1,47 +1,30 @@
 <?php
 session_start();
-require '../../config/koneksi.php';
+require_once '../../config/koneksi.php';
 
-// Cek apakah user sudah login sebagai pasien  
+// Cek apakah pasien sudah login  
 if (!isset($_SESSION['pasien_id'])) {
-    header("location: ../../login_pasien.php");
-    exit();
+    header("Location: login_pasien.php");
+    exit;
 }
 
-// Ambil data pasien  
-$query = "SELECT * FROM pasien WHERE id = ?";
-$stmt = mysqli_prepare($mysqli, $query);
-mysqli_stmt_bind_param($stmt, 'i', $_SESSION['pasien_id']);
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
-$pasien = mysqli_fetch_assoc($result);
+// Ambil data pasien dari database  
+$pasien_id = $_SESSION['pasien_id'];
+$query_pasien = "SELECT * FROM pasien WHERE id = '$pasien_id'";
+$result_pasien = mysqli_query($mysqli, $query_pasien);
+$pasien = mysqli_fetch_assoc($result_pasien);
 
-// Ambil jumlah poli  
-$query_poli = "SELECT COUNT(*) as total_poli FROM poli";
-$result_poli = mysqli_query($mysqli, $query_poli);
-$total_poli = mysqli_fetch_assoc($result_poli)['total_poli'];
-$query = "SELECT p.*, d.nama AS nama_dokter, pol.nama_poli   
-          FROM daftar_poli p   
-          JOIN dokter d ON p.id_jadwal = d.id   
-          JOIN poli pol ON d.id_poli = pol.id   
-          WHERE p.id_pasien = ?   
-          ORDER BY p.id DESC   
-          LIMIT 1";
-
-
-$stmt = mysqli_prepare($mysqli, $query);
-mysqli_stmt_bind_param($stmt, 'i', $_SESSION['pasien_id']);
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
-$pendaftaran = mysqli_fetch_assoc($result);
-
-
-
-
-// Jika tidak ada pendaftaran, tampilkan pesan  
-
+// Ambil riwayat pendaftaran pasien  
+$query_riwayat = "  
+    SELECT dp.id, p.nama_poli, d.nama AS dokter_nama, dp.keluhan, dp.no_antrian, jp.hari, jp.jam_mulai, jp.jam_selesai, dp.status_periksa  
+    FROM daftar_poli dp  
+    JOIN jadwal_periksa jp ON dp.id_jadwal = jp.id  
+    JOIN dokter d ON jp.id_dokter = d.id  
+    JOIN poli p ON d.id_poli = p.id  
+    WHERE dp.id_pasien = '$pasien_id'   
+    ORDER BY dp.id DESC";
+$result_riwayat = mysqli_query($mysqli, $query_riwayat);
 ?>
-
 
 <!DOCTYPE html>
 <html lang="id">
@@ -51,166 +34,77 @@ $pendaftaran = mysqli_fetch_assoc($result);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Pasien</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 </head>
 
-<body class="bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen">
-    <div class="container mx-auto px-4 py-8">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- Sidebar Navigasi -->
-            <div class="md:col-span-1">
-                <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
-                    <div class="text-center">
-                        <div class="w-32 h-32 rounded-full bg-blue-100 mx-auto mb-4 flex items-center justify-center shadow-md">
-                            <i data-feather="user" class="w-16 h-16 text-blue-500"></i>
-                        </div>
-                        <h2 class="text-2xl font-bold text-gray-800"><?= htmlspecialchars($pasien['nama']) ?></h2>
-                        <p class="text-gray-600 mt-2">Pasien Terdaftar</p>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <nav>
-                        <ul class="space-y-4">
-                            <li>
-                                <a href="dashboard_pasien.php" class="flex items-center text-gray-700 hover:text-blue-600 transition duration-200 group">
-                                    <i data-feather="home" class="mr-3 text-gray-400 group-hover:text-blue-500"></i>
-                                    Dashboard
-                                </a>
-                            </li>
-                            <li>
-                                <a href="profil_saya.php" class="flex items-center text-gray-700 hover:text-blue-600 transition duration-200 group">
-                                    <i data-feather="user" class="mr-3 text-gray-400 group-hover:text-blue-500"></i>
-                                    Profil Saya
-                                </a>
-                            </li>
-                            <li>
-                                <a href="jadwal_konsultasi.php" class="flex items-center text-gray-700 hover:text-blue-600 transition duration-200 group">
-                                    <i data-feather="calendar" class="mr-3 text-gray-400 group-hover:text-blue-500"></i>
-                                    Jadwal Konsultasi
-                                </a>
-                            </li>
-                            <li>
-                                <a href="daftar_poli.php" class="flex items-center text-gray-700 hover:text-blue-600 transition duration-200 group">
-                                    <i data-feather="clipboard" class="mr-3 text-gray-400 group-hover:text-blue-500"></i>
-                                    Pilih Poli
-                                </a>
-                            </li>
-                            <li>
-                                <a href="pilih_dokter.php" class="flex items-center text-gray-700 hover:text-blue-600 transition duration-200 group">
-                                    <i data-feather="user" class="mr-3 text-gray-400 group-hover:text-blue-500"></i>
-                                    Pilih Dokter
-                                </a>
-                            </li>
-                            <li>
-                                <a href="jadwal_dokter.php" class="flex items-center text-gray-700 hover:text-blue-600 transition duration-200 group">
-                                    <i data-feather="calendar" class="mr-3 text-gray-400 group-hover:text-blue-500"></i>
-                                    Jadwal Dokter
-                                </a>
-                            </li>
-                            <li>
-                                <a href="konfirmasi_pendaftaran.php" class="flex items-center text-gray-700 hover:text-blue-600 transition duration-200 group">
-                                    <i data-feather="check-circle" class="mr-3 text-gray-400 group-hover:text-blue-500"></i>
-                                    Konfirmasi Pendaftaran
-                                </a>
-                            </li>
-                            <li>
-                                <a href="konfirmasi_berhasil.php" class="flex items-center text-gray-700 hover:text-blue-600 transition duration-200 group">
-                                    <i data-feather="check-circle" class="mr-3 text-gray-400 group-hover:text-blue-500"></i>
-                                    Konfirmasi Berhasil
-                                </a>
-                            </li>
-                            <li>
-                                <a href="../../logout.php" class="flex items-center text-red-500 hover:text-red-600 transition duration-200 group">
-                                    <i data-feather="log-out" class="mr-3 text-red-400 group-hover:text-red-500"></i>
-                                    Keluar
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
+<body class="bg-gray-100">
+    <div class="min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="bg-gradient-to-r from-teal-500 to-blue-500 shadow-lg">
+            <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+                <h1 class="text-3xl font-extrabold text-white">Dashboard Pasien</h1>
+                <div class="flex items-center space-x-4">
+                    <span class="text-gray-200"><?= htmlspecialchars($pasien['nama']); ?></span>
+                    <a href="../../logout.php" class="text-white hover:text-teal-200 transition duration-200">Logout</a>
                 </div>
             </div>
+        </header>
 
-            <!-- Konten Utama -->
-            <div class="md:col-span-2 space-y-6">
-                <!-- Kartu Statistik -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-white rounded-xl shadow-md p-5 hover:shadow-lg transition-all duration-300">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h3 class="text-gray-500 text-sm uppercase">Total Poli</h3>
-                                <p class="text-3xl font-bold text-blue-600"><?= $total_poli ?></p>
-                            </div>
-                            <i data-feather="layers" class="text-blue-500 w-10 h-10"></i>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-xl shadow-md p-5 hover:shadow-lg transition-all duration-300">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h3 class="text-gray-500 text-sm uppercase">Nomor Rekam Medis</h3>
-                                <p class="text-3xl font-bold text-green-600"><?= htmlspecialchars($pasien['no_rm']) ?></p>
-                            </div>
-                            <i data-feather="clipboard" class="text-green-500 w-10 h-10"></i>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-xl shadow-md p-5 hover:shadow-lg transition-all duration-300">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h3 class="text-gray-500 text-sm uppercase">Status</h3>
-                                <p class="text-xl font-bold text-purple-600">Aktif</p>
-                            </div>
-                            <i data-feather="check-circle" class="text-purple-500 w-10 h-10"></i>
-                        </div>
-                    </div>
-                </div>
+        <!-- Main Content -->
+        <main class="flex-grow container mx-auto px-6 py-8">
 
-                <!-- Daftar Poli
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <div class=" justify-between items-center mb-4">
-                        <h2 class="text-xl font-semibold mb-4">Informasi Pendaftaran</h2>
-                        <p><strong>Poli:</strong> <?= htmlspecialchars($pendaftaran['nama_poli']) ?></p>
-                        <p><strong>Dokter:</strong> <?= htmlspecialchars($pendaftaran['nama_dokter']) ?></p>
-                        <p><strong>Keluhan:</strong> <?= htmlspecialchars($pendaftaran['keluhan']) ?></p>
-                        <p><strong>Nomor Antrian:</strong> <?= htmlspecialchars($pendaftaran['no_antrian']) ?></p>
-                        <p><strong>Status:</strong> Pendaftaran berhasil.</p>
-                    </div>
-                </div> -->
-
-                <!-- Informasi Pribadi -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-bold text-gray-800">Informasi Pribadi</h2>
-                        <a href="#" class="text-blue-500 hover:underline text-sm">Edit Profil</a>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <h3 class="font-semibold text-gray-700">Nama Lengkap</h3>
-                            <p class="text-gray-600"><?= htmlspecialchars($pasien['nama']) ?></p>
-                        </div>
-                        <div>
-                            <h3 class="font-semibold text-gray-700">Nomor KTP</h3>
-                            <p class="text-gray-600"><?= htmlspecialchars($pasien['no_ktp'] ?? 'Tidak tersedia') ?></p>
-                        </div>
-                        <div>
-                            <h3 class="font-semibold text-gray-700">Alamat</h3>
-                            <p class="text-gray-600"><?= htmlspecialchars($pasien['alamat'] ?? 'Tidak tersedia') ?></p>
-                        </div>
-                        <div>
-                            <h3 class="font-semibold text-gray-700">Tanggal Terdaftar</h3>
-                            <p class="text-gray-600">
-                                <?= !empty($pasien['created_at']) ? date('d M Y', strtotime($pasien['created_at'])) : 'Tidak tersedia' ?>
-                            </p>
-                        </div>
-                    </div>
-                </div>
+            <!-- Riwayat Pendaftaran Poli -->
+            <h2 class="text-xl font-semibold mb-4">Riwayat Pendaftaran Poli</h2>
+            <div class="overflow-x-auto bg-white shadow-lg rounded-lg mb-6">
+                <table class="min-w-full border border-gray-200">
+                    <thead>
+                        <tr class="bg-gray-200 text-gray-700">
+                            <th class="border-b py-3 px-4 text-left">No</th>
+                            <th class="border-b py-3 px-4 text-left">Poli</th>
+                            <th class="border-b py-3 px-4 text-left">Dokter</th>
+                            <th class="border-b py-3 px-4 text-left">Keluhan</th>
+                            <th class="border-b py-3 px-4 text-left">No Antrian</th>
+                            <th class="border-b py-3 px-4 text-left">Jadwal</th>
+                            <th class="border-b py-3 px-4 text-left">Status</th>
+                            <th class="border-b py-3 px-4 text-left">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php $no = 1;
+                        while ($riwayat = mysqli_fetch_assoc($result_riwayat)): ?>
+                            <tr class="<?= $no % 2 ? 'bg-gray-50' : 'bg-white' ?> hover:bg-teal-100 transition duration-150">
+                                <td class="border py-2 px-4"><?= $no++; ?></td>
+                                <td class="border py-2 px-4"><?= htmlspecialchars($riwayat['nama_poli']); ?></td>
+                                <td class="border py-2 px-4"><?= htmlspecialchars($riwayat['dokter_nama']); ?></td>
+                                <td class="border py-2 px-4"><?= htmlspecialchars($riwayat['keluhan']); ?></td>
+                                <td class="border py-2 px-4"><?= htmlspecialchars($riwayat['no_antrian']); ?></td>
+                                <td class="border py-2 px-4"><?= htmlspecialchars($riwayat['hari']) . ' ' . htmlspecialchars($riwayat['jam_mulai']) . ' - ' . htmlspecialchars($riwayat['jam_selesai']); ?></td>
+                                <td class="border py-2 px-4"><?= htmlspecialchars($riwayat['status_periksa']) ?></td>
+                                <td class="border py-2 px-4">
+                                    <a href="detail_periksa.php?id=<?= $riwayat['id'] ?>" class="bg-blue-600 text-white py-1 px-3 rounded hover:bg-blue-700 transition duration-300">Detail</a>
+                                </td>
+                            </tr>
+                        <?php endwhile; ?>
+                    </tbody>
+                </table>
             </div>
-        </div>
+
+            <!-- Aksi Selanjutnya -->
+            <h2 class="text-xl font-semibold mt-8 mb-4">Aksi Selanjutnya</h2>
+            <div class="flex flex-wrap space-x-4 mb-6">
+                <a href="daftar_poli.php" class="bg-blue-600 text-white py-3 px-5 rounded-lg shadow hover:bg-blue-700 transition duration-300">Daftar Poli <i class="fas fa-plus-circle"></i></a>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-white shadow-md border-t border-gray-200 py-4">
+            <div class="max-w-7xl mx-auto px-4 text-center">
+                <p class="text-sm text-gray-500">
+                    © <?= date('Y') ?> Sistem Informasi Pasien. Hak Cipta Dilindungi.
+                </p>
+            </div>
+        </footer>
     </div>
-
-    <script>
-        // Aktifkan ikon Feather  
-        feather.replace();
-    </script>
 </body>
 
 </html>
