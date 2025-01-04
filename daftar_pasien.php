@@ -48,60 +48,120 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pendaftaran Pasien</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        function validateForm() {
-            const nama = document.getElementById('nama').value;
-            const noKtp = document.getElementById('no_ktp').value;
-            const noHp = document.getElementById('no_hp').value;
-
-            if (!nama || !noKtp || !noHp) {
-                alert('Semua field harus diisi!');
-                return false;
-            }
-            return true;
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
-    </script>
+
+        .form-container {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        input:focus {
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+    </style>
 </head>
 
-<body class="bg-gray-200">
-    <div class="flex items-center justify-center min-h-screen">
-        <div class="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
-            <h2 class="text-2xl font-bold text-center mb-6 text-blue-600">Pendaftaran Pasien</h2>
-            <form action="" method="POST" class="space-y-4" onsubmit="return validateForm()">
-                <div>
-                    <label class="block text-gray-700" for="nama">Nama</label>
-                    <input type="text" id="nama" name="nama" required class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label class="block text-gray-700" for="alamat">Alamat</label>
-                    <input type="text" id="alamat" name="alamat" required class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label class="block text-gray-700" for="no_ktp">No KTP</label>
-                    <input type="text" id="no_ktp" name="no_ktp" required class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label class="block text-gray-700" for="no_hp">No HP</label>
-                    <input type="text" id="no_hp" name="no_hp" required class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <!-- Hapus bagian input password -->
-                <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200">Daftar</button>
-            </form>
+<body class="flex items-center justify-center min-h-screen p-6">
+    <div class="form-container bg-white/95 backdrop-blur-sm rounded-2xl p-8 max-w-md w-full shadow-2xl">
+        <div class="text-center mb-8">
+            <div class="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-user-plus text-4xl text-indigo-600"></i>
+            </div>
+            <h2 class="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                Pendaftaran Pasien
+            </h2>
+            <p class="text-gray-500 mt-2">Silakan lengkapi data diri Anda</p>
+        </div>
 
-            <?php if ($success_message): ?>
-                <div class="mt-4 p-4 bg-green-100 text-green-700 rounded">
-                    <?= $success_message; ?>
-                    <a href="./login_pasien.php">
-                        <button class="bg-green-500 text-white px-4 py-2 rounded mt-2">Ayo login</button>
-                    </a>
+        <?php if ($success_message): ?>
+            <div class="mb-6 bg-green-100 border-l-4 border-green-500 p-4 rounded-lg">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-green-700"><?= $success_message ?></p>
+                    </div>
                 </div>
-            <?php endif; ?>
+            </div>
+        <?php endif; ?>
 
-            <?php if ($error_message): ?>
-                <div class="mt-4 p-4 bg-red-100 text-red-700 rounded">
-                    <?= $error_message; ?>
+        <?php if ($error_message): ?>
+            <div class="mb-6 bg-red-100 border-l-4 border-red-500 p-4 rounded-lg">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-circle text-red-500"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-red-700"><?= $error_message ?></p>
+                    </div>
                 </div>
-            <?php endif; ?>
+            </div>
+        <?php endif; ?>
+
+        <form method="POST" class="space-y-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    <i class="fas fa-user mr-2"></i>Nama Lengkap
+                </label>
+                <input type="text" name="nama" required
+                    class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition-all"
+                    placeholder="Masukkan nama lengkap">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    <i class="fas fa-id-card mr-2"></i>Nomor KTP
+                </label>
+                <input type="text" name="no_ktp" required pattern="[0-9]{16}"
+                    class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition-all"
+                    placeholder="Masukkan 16 digit nomor KTP">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    <i class="fas fa-phone mr-2"></i>Nomor HP
+                </label>
+                <input type="tel" name="no_hp" required
+                    class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition-all"
+                    placeholder="Masukkan nomor HP">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    <i class="fa-solid fa-location-dot mr-2"></i>Alamat
+                </label>
+                <input type="text" name="alamat" required
+                    class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition-all"
+                    placeholder="Masukkan alamat">
+            </div>
+
+            <button type="submit"
+                class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold py-3 rounded-lg hover:opacity-90 transition-all duration-300 flex items-center justify-center">
+                <i class="fas fa-user-plus mr-2"></i>
+                Daftar Sekarang
+            </button>
+        </form>
+
+        <div class="mt-6 text-center">
+            <a href="login_pasien.php" class="text-indigo-600 hover:text-indigo-800 transition-all">
+                <i class="fas fa-arrow-left mr-2"></i>Kembali ke Login
+            </a>
         </div>
     </div>
 </body>
